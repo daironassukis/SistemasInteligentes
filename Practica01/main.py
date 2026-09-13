@@ -94,6 +94,78 @@ def creaAlmacen(file):
 def imprimeAlmacen(almacen):
     for tam, palabras in almacen.items():
         print (f'tam: {tam}: {palabras}')
+
+#########################################################################
+# Obtiene una lista de variables horizontales
+#########################################################################
+def construyeVariablesHorizontal(tablero, almacen):
+    variables = []
+    contador = 0
+
+    for fila in range(tablero.getAlto()):
+        longitudVariable = 0
+        col_inicio = 0
+        for col in range(tablero.getAncho()):
+            if tablero.getCelda(fila,col) != LLENA:
+                if longitudVariable == 0:
+                    col_inicio = col
+                longitudVariable += 1
+                
+            elif longitudVariable >= 2:                 # Evitamos crear variables de un solo hueco
+                # Creamos la variable
+                dominio = almacen.get(longitudVariable, set()).copy()
+                nuevaVariable = Variable(contador, "H", fila, col_inicio, longitudVariable, dominio)
+                variables.append(nuevaVariable)
+                contador += 1
+                longitudVariable = 0
+            else:
+                longitudVariable = 0
+
+        if longitudVariable >= 2:
+            dominio = almacen.get(longitudVariable, set()).copy()
+            nuevaVariable = Variable(contador, "H", fila, col_inicio, longitudVariable, dominio)
+            variables.append(nuevaVariable)
+            contador += 1
+            longitudVariable = 0
+
+    return variables, contador
+
+
+#########################################################################
+# Obtiene una lista de variables verticales
+#########################################################################
+def construyeVariablesVertical(tablero, almacen, contador):             # Aqui pasamos el contador como parametro para evitar que el nombre de las variables se solapen con los de la funcion "construyeVariablesHorizontal"
+    variables = []
+
+    for col in range(tablero.getAncho()):
+        longitudVariable = 0
+        fila_inicio = 0
+        for fila in range(tablero.getAlto()):
+            if tablero.getCelda(fila,col) != LLENA:
+                if longitudVariable == 0:
+                    fila_inicio = fila
+                longitudVariable += 1
+                
+            elif longitudVariable >= 2:                 # Evitamos crear variables de un solo hueco
+                # Creamos la variable
+                dominio = almacen.get(longitudVariable, set()).copy()
+                nuevaVariable = Variable(contador, "V", fila_inicio, col, longitudVariable, dominio)
+                variables.append(nuevaVariable)
+                contador += 1
+                longitudVariable = 0
+            else:
+                longitudVariable = 0
+
+        if longitudVariable >= 2:
+            dominio = almacen.get(longitudVariable, set()).copy()
+            nuevaVariable = Variable(contador, "V", fila_inicio, col, longitudVariable, dominio)
+            variables.append(nuevaVariable)
+            contador += 1
+            longitudVariable = 0
+
+    return variables
+
+                
         
       
 #########################################################################  
