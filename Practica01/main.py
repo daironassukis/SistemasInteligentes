@@ -96,6 +96,8 @@ def imprimeAlmacen(almacen):
     for tam, palabras in almacen.items():
         print (f'tam: {tam}: {palabras}')
 
+
+
 #########################################################################
 # Obtiene una lista de variables horizontales
 #########################################################################
@@ -147,6 +149,11 @@ def filtraDominioHorizontal(tablero, almacen, fila, col_inicio, longitud):
             dominio = nuevoFiltrado
 
     return dominio
+
+
+
+
+
 #########################################################################
 # Obtiene una lista de variables verticales
 #########################################################################
