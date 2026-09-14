@@ -226,7 +226,7 @@ def encuentraRestricciones(listaVariables):
                 # CONDICIÓN 2: la variable horizontal está posicionada entre la fila inicial y la fila final
                 # Si se cumplen las 2 condiciones, las variables se cruzan
                 if var_h.col <= var_v.col <= var_h.col + var_h.longitud - 1 and var_v.fila <= var_h.fila <= var_v.fila + var_v.longitud - 1:
-                    # En que posición de la variable se cruza
+                    # En que posición de la variable se cruzan
                     pos_en_h = var_v.col - var_h.col
                     pos_en_v = var_h.fila - var_v.fila
 
