@@ -204,8 +204,36 @@ def filtraDominioVertical(tablero, almacen, fila_inicio, col, longitud):
                     nuevoFiltrado.append(palabra)
             dominio = nuevoFiltrado
 
-    return dominio            
+    return dominio
+
+
+#########################################################################
+# Función encuentraRestricciones
+#########################################################################
         
+def encuentraRestricciones(listaVariables):
+    for var1 in listaVariables:
+        for var2 in listaVariables:
+            if var1.tipo != var2.tipo:
+                if var1.tipo == 'H':
+                    var_h = var1
+                    var_v = var2
+                else:
+                    var_h = var2
+                    var_v = var1
+
+                # CONDICIÓN 1: la variable vertical está posicionada entre la columna inicial y la columna final de la variable horizontal
+                # CONDICIÓN 2: la variable horizontal está posicionada entre la fila inicial y la fila final
+                # Si se cumplen las 2 condiciones, las variables se cruzan
+                if var_h.col <= var_v.col <= var_h.col + var_h.longitud - 1 and var_v.fila <= var_h.fila <= var_v.fila + var_v.longitud - 1:
+                    # En que posición de la variable se cruza
+                    pos_en_h = var_v.col - var_h.col
+                    pos_en_v = var_h.fila - var_v.fila
+
+                    var_h.restricciones.append((var_v, pos_en_h, pos_en_v))
+                    var_v.restricciones.append((var_h, pos_en_v, pos_en_h))
+
+            
       
 #########################################################################  
 # Principal
