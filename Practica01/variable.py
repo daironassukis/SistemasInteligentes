@@ -8,6 +8,7 @@ class Variable:
         self.dominio = dominio
         self.restricciones = []
 
-
+    def __str__(self):
+        return f"Nombre {self.nombre} Posición {self.fila} {self.col} Tipo: {self.tipo} Dominio: {self.dominio}"
 
 

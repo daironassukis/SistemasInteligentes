@@ -8,6 +8,7 @@ import sys
 import time
 import copy
 from tablero import *
+from variable import *
 
 GREY=(190, 190, 190)
 NEGRO=(100,100, 100)
@@ -113,7 +114,7 @@ def construyeVariablesHorizontal(tablero, almacen):
                 
             elif longitudVariable >= 2:                 # Evitamos crear variables de un solo hueco
                 # Creamos la variable
-                dominio = almacen.get(longitudVariable, set()).copy()
+                dominio = filtraDominioHorizontal(tablero, almacen, fila, col_inicio, longitudVariable)
                 nuevaVariable = Variable(contador, "H", fila, col_inicio, longitudVariable, dominio)
                 variables.append(nuevaVariable)
                 contador += 1
@@ -122,7 +123,7 @@ def construyeVariablesHorizontal(tablero, almacen):
                 longitudVariable = 0
 
         if longitudVariable >= 2:
-            dominio = almacen.get(longitudVariable, set()).copy()
+            dominio = filtraDominioHorizontal(tablero, almacen, fila, col_inicio, longitudVariable)
             nuevaVariable = Variable(contador, "H", fila, col_inicio, longitudVariable, dominio)
             variables.append(nuevaVariable)
             contador += 1
@@ -130,7 +131,22 @@ def construyeVariablesHorizontal(tablero, almacen):
 
     return variables, contador
 
+#########################################################################
+# Función auxiliar
+#########################################################################
+def filtraDominioHorizontal(tablero, almacen, fila, col_inicio, longitud):
+    dominio = almacen.get(longitud, set()).copy()
 
+    for i in range(longitud):
+        celda = tablero.getCelda(fila, col_inicio + i)
+        if celda != VACIA and celda != LLENA:
+            nuevoFiltrado = []
+            for palabra in dominio:
+                if palabra[i] == celda:
+                    nuevoFiltrado.append(palabra)
+            dominio = nuevoFiltrado
+
+    return dominio
 #########################################################################
 # Obtiene una lista de variables verticales
 #########################################################################
@@ -148,7 +164,8 @@ def construyeVariablesVertical(tablero, almacen, contador):             # Aqui p
                 
             elif longitudVariable >= 2:                 # Evitamos crear variables de un solo hueco
                 # Creamos la variable
-                dominio = almacen.get(longitudVariable, set()).copy()
+                dominio = filtraDominioVertical(tablero, almacen, fila_inicio, col, longitudVariable)
+
                 nuevaVariable = Variable(contador, "V", fila_inicio, col, longitudVariable, dominio)
                 variables.append(nuevaVariable)
                 contador += 1
@@ -157,7 +174,7 @@ def construyeVariablesVertical(tablero, almacen, contador):             # Aqui p
                 longitudVariable = 0
 
         if longitudVariable >= 2:
-            dominio = almacen.get(longitudVariable, set()).copy()
+            dominio = filtraDominioVertical(tablero, almacen, fila_inicio, col, longitudVariable)
             nuevaVariable = Variable(contador, "V", fila_inicio, col, longitudVariable, dominio)
             variables.append(nuevaVariable)
             contador += 1
@@ -165,7 +182,22 @@ def construyeVariablesVertical(tablero, almacen, contador):             # Aqui p
 
     return variables
 
-                
+#########################################################################
+# Función auxiliar
+#########################################################################
+def filtraDominioVertical(tablero, almacen, fila_inicio, col, longitud):
+    dominio = almacen.get(longitud, set()).copy()
+
+    for i in range(longitud):
+        celda = tablero.getCelda(fila_inicio + i, col)
+        if celda != VACIA and celda != LLENA:
+            nuevoFiltrado = []
+            for palabra in dominio:
+                if palabra[i] == celda:
+                    nuevoFiltrado.append(palabra)
+            dominio = nuevoFiltrado
+
+    return dominio            
         
       
 #########################################################################  
@@ -203,12 +235,15 @@ def main():
     if altoBoton>=65:
         altoBoton=65    
     
-    posBotBK=altoVentana//4-altoBoton//2
-    posBotFC=altoVentana//2-altoBoton//2
-    posBotAC3=(altoVentana//2+altoVentana)//2-altoBoton//2      
+    posBotBK=altoVentana//5-altoBoton//2
+    posBotFC=(altoVentana//5)*2-altoBoton//2
+    posBotAC3=(altoVentana//5)*3-altoBoton//2
+    posBotVariable=(altoVentana//5)*4-altoBoton//2
+
     botBK=pygame.Rect(anchoVentana-95, posBotBK, 70, altoBoton)    
     botFC=pygame.Rect(anchoVentana-95,posBotFC , 70, altoBoton)
     botAC3=pygame.Rect(anchoVentana-95, posBotAC3, 70, altoBoton)
+    botVariable=pygame.Rect(anchoVentana-95, posBotVariable, 70, altoBoton)
 
     tamFuenteBot=int(altoBoton//1.5)    
     fuenteBot=pygame.font.Font(None, tamFuenteBot)
@@ -217,7 +252,8 @@ def main():
     almacen=creaAlmacen(file)
     #imprimeAlmacen(almacen)
     game_over=False
-    tablero=Tablero(filas, cols)    
+    tablero=Tablero(filas, cols)
+
     ac3=False
     while not game_over:
         for event in pygame.event.get():
@@ -237,7 +273,13 @@ def main():
                     if res==False:
                         MessageBox.showwarning("Alerta", "No hay solución")  
                 elif pulsaBoton(pos, botAC3):
-                    print('AC3')                    
+                    print('AC3')
+                elif pulsaBoton(pos, botVariable):
+                    variablesHorizontales, contador = construyeVariablesHorizontal(tablero, almacen)
+                    variablesVerticales = construyeVariablesVertical(tablero, almacen, contador)    
+                    todasVariables = variablesHorizontales + variablesVerticales
+                    for v in todasVariables:
+                        print(v)
                 elif inTablero(pos, filas, cols):
                     colDestino=pos[0]//(TAM+MARGEN)
                     filDestino=pos[1]//(TAM+MARGEN)                    
@@ -257,7 +299,8 @@ def main():
         #pintar botones           
         pintarBoton(screen, fuenteBot, botBK, "BK")
         pintarBoton(screen, fuenteBot, botFC, "FC")
-        pintarBoton(screen, fuenteBot, botAC3, "AC3")   
+        pintarBoton(screen, fuenteBot, botAC3, "AC3")
+        pintarBoton(screen, fuenteBot, botVariable, "VAR") 
         #actualizar pantalla
         pygame.display.flip()
         reloj.tick(40)
