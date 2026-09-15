@@ -248,7 +248,32 @@ def isFeasible(variable, palabra, listaVariables):
         if restriction[0].valor is not None:
             if palabra[restriction[1]] != restriction[0].valor[restriction[2]]:
                 return False
-    return True     
+    return True
+
+
+def backTracking(k, listaVariables):
+    if k == len(listaVariables):
+        return True
+    else:
+        actualVariable = listaVariables[k]
+        for dom in actualVariable.dominio:
+            if isFeasible(actualVariable, dom, listaVariables):
+                actualVariable.valor = dom
+                if backTracking(k+1, listaVariables):
+                    return True
+                actualVariable.valor = None
+    return False
+
+
+def pintarSolucion(listaVariables, tablero):
+    for var in listaVariables:
+        for i in range(var.longitud):
+            if var.tipo == 'H':
+                tablero.setCelda(var.fila, var.col+i, var.valor[i])
+            else:
+                tablero.setCelda(var.fila+i, var.col, var.valor[i])
+
+
       
 #########################################################################  
 # Principal
