@@ -212,16 +212,17 @@ def filtraDominioVertical(tablero, almacen, fila_inicio, col, longitud):
 #########################################################################
         
 def encuentraRestricciones(listaVariables):
-    for var1 in listaVariables:
-        for var2 in listaVariables:
-            if var1.tipo != var2.tipo:
-                if var1.tipo == 'H':
-                    var_h = var1
-                    var_v = var2
-                else:
-                    var_h = var2
-                    var_v = var1
+    variablesHorizontales = []
+    variablesVerticales = []
 
+    for v in listaVariables:
+        if v.tipo == 'H':
+            variablesHorizontales.append(v)
+        else:
+            variablesVerticales.append(v)
+
+    for var_h in variablesHorizontales:
+        for var_v in variablesVerticales:
                 # CONDICIÓN 1: la variable vertical está posicionada entre la columna inicial y la columna final de la variable horizontal
                 # CONDICIÓN 2: la variable horizontal está posicionada entre la fila inicial y la fila final
                 # Si se cumplen las 2 condiciones, las variables se cruzan
@@ -233,7 +234,21 @@ def encuentraRestricciones(listaVariables):
                     var_h.restricciones.append((var_v, pos_en_h, pos_en_v))
                     var_v.restricciones.append((var_h, pos_en_v, pos_en_h))
 
-            
+
+def isFeasible(variable, palabra, listaVariables):
+
+    # Si la palabra pasada por parámetro esta siendo utilizada en otra variable, FALSE
+    for var in listaVariables:
+        if var != variable:
+            if var.valor == palabra:
+                return False
+
+    for restriction in variable.restricciones:
+        # El vecino si tiene una palabra puesta
+        if restriction[0].valor is not None:
+            if palabra[restriction[1]] != restriction[0].valor[restriction[2]]:
+                return False
+    return True     
       
 #########################################################################  
 # Principal
@@ -313,6 +328,7 @@ def main():
                     variablesHorizontales, contador = construyeVariablesHorizontal(tablero, almacen)
                     variablesVerticales = construyeVariablesVertical(tablero, almacen, contador)    
                     todasVariables = variablesHorizontales + variablesVerticales
+                    encuentraRestricciones(todasVariables)
                     for v in todasVariables:
                         print(v)
                 elif inTablero(pos, filas, cols):
