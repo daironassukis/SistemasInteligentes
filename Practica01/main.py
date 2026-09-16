@@ -339,9 +339,6 @@ def main():
                 pos=pygame.mouse.get_pos()                
                 if pulsaBoton(pos, botBK):
                     print('BK')
-                    res=True #esta variable debe estar a falso si el problema no tiene solución
-                    if res==False:
-                            MessageBox.showwarning("Alerta", "No hay solución")
                     variablesHorizontales, contador = construyeVariablesHorizontal(tablero, almacen)
                     variablesVerticales = construyeVariablesVertical(tablero, almacen, contador)    
                     todasVariables = variablesHorizontales + variablesVerticales
@@ -349,7 +346,7 @@ def main():
                     if backTracking(0, todasVariables):
                         pintarSolucion(todasVariables, tablero)
                     else:
-                        print("No hay solución")
+                        MessageBox.showwarning("Alerta", "No hay solución")
 
                                     
                 elif pulsaBoton(pos, botFC):
