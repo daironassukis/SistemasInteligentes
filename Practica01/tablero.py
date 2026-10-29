@@ -33,5 +33,27 @@ class Tablero:
         return self.tablero[fila][col]
     
     def setCelda(self, fila, col, val):
-        self.tablero[fila][col]=val    
+        self.tablero[fila][col]=val
+
+    def cargar(self, fichero):
+        f = open(fichero, "r", encoding="utf-8")
+        self.tablero = []
+
+        fila = -1
+        for linea in f:
+            celdas = linea.split()
+            if len(celdas) > 0:
+                fila += 1
+                self.tablero.append([])
+                for car in celdas:
+                    if car == '0':
+                        self.tablero[fila].append('-')
+                    elif car == '1':
+                        self.tablero[fila].append('*')
+                    else:
+                        self.tablero[fila].append(car.upper())
+        f.close()
+
+        self.ancho = len(self.tablero[0])
+        self.alto = len(self.tablero)
     
