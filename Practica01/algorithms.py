@@ -41,6 +41,8 @@ def backTracking(k, listaVariables):
 #######################
 
 def esConsistenteFC(var_i ,valor_i, var_j, valor_j):
+    if valor_i == valor_j:
+        return False
     for restriction in var_i.restricciones:
         if restriction[0] == var_j:
             if valor_i[restriction[1]] == valor_j[restriction[2]]:
@@ -94,17 +96,31 @@ def FC(k, listaVariables):
         return True
     actualVar = listaVariables[k]
     for a in listaVariables[k].dominio.copy():
-        if isFeasible(actualVar, a, listaVariables):
-            actualVar.valor = a
-            if forward(k,listaVariables):
-                if FC(k+1, listaVariables):
-                    return True
-            actualVar.valor = None
-            restaurar(k, listaVariables)
+        actualVar.valor = a
+        if forward(k,listaVariables):
+            if FC(k+1, listaVariables):
+                return True
+        actualVar.valor = None
+        restaurar(k, listaVariables)
     return False
 
+
 #########################################################################
-# AC3 (pseudocódigo del enunciado)
+# Comprueba si dos valores coinciden en la casilla en la que se cruzan dos
+# variables. Es la restricción de las aristas que revisa AC3.
+#########################################################################
+
+def esConsistenteCruce(var_k, palabra_k, var_m, palabra_m):
+    for restriction in var_k.restricciones:
+        if restriction[0] == var_m:
+            if palabra_k[restriction[1]] == palabra_m[restriction[2]]:
+                return True
+            else:
+                return False
+    return True
+
+#########################################################################
+# AC3
 #########################################################################
 def AC3(listaVariables):
     cola = []
@@ -119,7 +135,7 @@ def AC3(listaVariables):
         for palabra_k in var_k.dominio.copy():
             hay_apoyo = False
             for palabra_m in var_m.dominio:
-                if esConsistenteFC(var_k, palabra_k, var_m, palabra_m):
+                if esConsistenteCruce(var_k, palabra_k, var_m, palabra_m):
                     hay_apoyo = True
                     break
             if not hay_apoyo:
@@ -194,3 +210,28 @@ def backJumping(k, listaVariables):
     exito, conflictos = backJumpingRec(k, listaVariables)
     return exito
 
+def ordenarVariables(listaVariables, heuristica):
+    if heuristica == "original":
+        return listaVariables
+    if heuristica == "dominio":
+        return sorted(listaVariables, key=lambda v: len(v.dominio))
+    if heuristica == "grado":
+        return sorted(listaVariables, key=lambda v: -len(v.restricciones))
+    if heuristica == "conectado":
+        pendientes = list(listaVariables)
+        orden = []
+        while len(pendientes) > 0:
+            mejor = None
+            for v in pendientes:
+                cruces = 0
+                for restriction in v.restricciones:
+                    if restriction[0] in orden:
+                        cruces += 1
+                clave = (cruces, -len(v.dominio), len(v.restricciones))
+                if mejor is None or clave > mejorClave:
+                    mejor = v
+                    mejorClave = clave
+            orden.append(mejor)
+            pendientes.remove(mejor)
+        return orden
+    return listaVariables

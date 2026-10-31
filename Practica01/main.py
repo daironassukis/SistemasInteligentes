@@ -12,6 +12,8 @@ from variable import *
 from algorithms import *
 from tkinter.filedialog import askopenfilename
 
+HEURISTICA = "conectado"
+
 GREY=(190, 190, 190)
 NEGRO=(100,100, 100)
 BLANCO=(255, 255, 255)
@@ -213,7 +215,7 @@ def obtenerVariables(tablero, almacen):
     variablesVerticales = construyeVariablesVertical(tablero, almacen, contador)
     todasVariables = variablesHorizontales + variablesVerticales
     encuentraRestricciones(todasVariables)
-    return todasVariables
+    return ordenarVariables(todasVariables, HEURISTICA)
 
 #########################################################################
 # Calcula los cruces entre variables horizontales y verticales
